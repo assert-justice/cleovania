@@ -1,4 +1,5 @@
 /dist/cleo
+/dist/cleo.a
 /dist/cleo.exe
 /node_modules
 *.js
