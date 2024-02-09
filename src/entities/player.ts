@@ -3,7 +3,7 @@ import { SpriteSheet } from "../cleo/core/sprite_sheet";
 import { Globals } from "../globals";
 import { Actor } from "./actor";
 import { World } from "../world/world";
-import { System } from "cleo";
+import { Camera } from "../cleo/core/camera";
 
 export class Player extends Actor{
     jump = false;
@@ -19,12 +19,14 @@ export class Player extends Actor{
     jumpClock = 0;
     coyoteBuffer = 0.3;
     coyoteClock = 0;
-    constructor(world: World){
+    camera: Camera;
+    constructor(world: World, camera: Camera){
         super(world, 24, 24);
         this.inputManager = Globals.inputManager;
         this.spr = new SpriteSheet(Globals.textureManager.get("characters"), 24, 24);
         this.moveInput = this.inputManager.getAxis2D("move");
         this.jumpInput = this.inputManager.getButton("jump");
+        this.camera = camera;
     }
     update(dt: number): void {
         if(this.jumpClock > 0) this.jumpClock -= dt;
@@ -41,6 +43,8 @@ export class Player extends Actor{
         this.acceleration.y = this.gravity;
         if(this.jumpInput.isDown()) this.acceleration.y *= this.jumpGravity;
         super.update(dt);
+        this.camera.position.x = this.position.x;
+        // this.camera.position.y = this.position.y;
     }
     draw(): void {
         this.spr.draw(this.position.x, this.position.y);

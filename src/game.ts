@@ -3,13 +3,11 @@ import { Player } from "./entities/player";
 import { World } from "./world/world";
 
 export class Game extends Scene{
-    player: Player;
+    // player: Player;
     world: World;
     constructor(){
         super();
         this.world = new World();
-        this.player = new Player(this.world);
-        this.player.position.x = 100; this.player.position.y = 100;
         const right = 35;
         const bottom = 19;
         // const right = 10;
@@ -21,10 +19,11 @@ export class Game extends Scene{
         this.world.lookup.setArea(8, bottom-3, 10, bottom, 0);
     }
     update(dt: number): void {
-        this.player.update(dt);
+        // this.player.update(dt);
+        this.world.update(dt);
     }
     draw(): void {
         this.world.draw();
-        this.player.draw();
+        // this.player.draw();
     }
 }
