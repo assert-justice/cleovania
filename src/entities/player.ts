@@ -35,6 +35,7 @@ export class Player extends Actor{
         if(this.grounded) this.coyoteClock = this.coyoteBuffer;
         const move = this.moveInput.getValue();
         this.velocity.x = move.x * this.speed;
+        // this.velocity.y = move.y * this.speed;
         if(this.jumpClock > 0 && this.coyoteClock > 0) {
             this.velocity.y = -this.jumpPower;
             this.jumpClock = 0;

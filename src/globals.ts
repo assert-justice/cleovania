@@ -28,7 +28,7 @@ export class Globals{
         this.inputManager.addButton("jump").addKey(Key.space).addJoyButton(0, JoyButton.a);
         this.textureManager = new TextureManager()
             .add("characters", "./sprites/tilemap-characters_packed.png")
-            .add("tiles", "./sprites/tilemap_packed.png")
+            .add("tiles", "./sprites/terrain.png")
             .add("backgrounds", "./sprites/tilemap-backgrounds_packed.png")
     }
 }
