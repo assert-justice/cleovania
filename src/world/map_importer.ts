@@ -18,29 +18,40 @@ export function parseLdtk(src: string): World{
             tt.add(tag.enumValueId);
         }
     }
-    const level = data.levels[0];
-    const layers = level.layerInstances;
-    if(!layers) throw 'oops';
-    const layer = layers[0];
-    const segments = new HashGrid2D<Segment | undefined>(undefined);
-    for (const tile of layer.gridTiles) {
-        const tx = +tile.px[0] / layer.__gridSize;
-        const ty = +tile.px[1] / layer.__gridSize;
-        const idx = tile.t;
-        // System.println(tx, ty, idx);
-        const sx = Math.floor(tx / world.segmentWidthTiles);
-        const sy = Math.floor(ty / world.segmentHeightTiles);
-        let seg = segments.get(sx, sy);
-        if(!seg) {
-            seg = new Segment(world, new Vec2(sx, sy), [], new Set());
-            segments.set(sx, sy, seg);
+    for (const level of data.levels) {
+        const layers = level.layerInstances;
+        if(!layers) throw 'oops';
+        const layer = layers[0];
+        const segments = new HashGrid2D<Segment | undefined>(undefined);
+        const roomXSegment = level.worldX / (world.tileWidth * world.segmentWidthTiles); 
+        const roomYSegment = level.worldY / (world.tileHeight * world.segmentHeightTiles); 
+        const roomWidthSegments = level.pxWid / (world.tileWidth * world.segmentWidthTiles); 
+        const roomHeightSegments = level.pxHei / (world.tileHeight * world.segmentHeightTiles); 
+        for (const tile of layer.gridTiles) {
+            const tx = +tile.px[0] / layer.__gridSize + level.worldX/world.tileWidth;
+            const ty = +tile.px[1] / layer.__gridSize + level.worldY/world.tileHeight;
+            const idx = tile.t;
+            // System.println(tx, ty, idx);
+            const sx = Math.floor(tx / world.segmentWidthTiles);
+            const sy = Math.floor(ty / world.segmentHeightTiles);
+            let seg = segments.get(sx, sy);
+            if(!seg) {
+                seg = new Segment(world, new Vec2(sx, sy), [], new Set());
+                segments.set(sx, sy, seg);
+            }
+            // seg.camWalls.add("t");
+            // seg.camWalls.add("b");
+            if(sx === roomXSegment) seg.camWalls.add("l");
+            if(sx === roomXSegment + roomWidthSegments-1) seg.camWalls.add("r");
+            if(sy === roomYSegment) seg.camWalls.add("t");
+            if(sy === roomYSegment + roomHeightSegments-1) seg.camWalls.add("b");
+            seg.tiles.push([tx,ty,idx]);
         }
-        seg.tiles.push([tx,ty,idx]);
-    }
-    // System.println(segments.data.size)
-    for (const [key, seg] of segments.data.entries()) {
-        world.segments.data.set(key, seg);
-        seg?.mount();
+        // System.println(segments.data.size)
+        for (const [key, seg] of segments.data.entries()) {
+            world.segments.data.set(key, seg);
+            seg?.mount();
+        }
     }
     return world;
 }

@@ -44,8 +44,7 @@ export class Player extends Actor{
         this.acceleration.y = this.gravity;
         if(this.jumpInput.isDown()) this.acceleration.y *= this.jumpGravity;
         super.update(dt);
-        this.camera.position.x = this.position.x;
-        // this.camera.position.y = this.position.y;
+        this.camera.setTargetPosition(this.position);
     }
     draw(): void {
         this.spr.draw(this.position.x, this.position.y);

@@ -1,4 +1,4 @@
-import { Graphics } from "cleo";
+import { Graphics, System } from "cleo";
 import { HashGrid2D } from "../cleo/core/data";
 import { SpriteSheet } from "../cleo/core/sprite_sheet";
 import { Globals } from "../globals";
@@ -59,11 +59,16 @@ export class World{
     tileHeight = 16;
     segmentWidthTiles = 40;
     segmentHeightTiles = 22;
+    segmentWidthPixels;
+    segmentHeightPixels;
     player: Player;
     constructor(){
+        this.segmentWidthPixels = this.segmentWidthTiles*this.tileWidth;
+        this.segmentHeightPixels = this.segmentHeightTiles*this.tileHeight;
         this.tileset = new SpriteSheet(Globals.textureManager.get("tiles"), this.tileWidth, this.tileHeight);
-        this.camera = new Camera(Globals.ViewWidth, Globals.ViewHeight);
-        this.camera.position.x = Globals.ViewWidth/2; this.camera.position.y = Globals.ViewHeight/2;
+        this.camera = new Camera(this.segmentWidthPixels, this.segmentHeightPixels);
+        // this.camera.position.x = Globals.ViewWidth/2; this.camera.position.y = Globals.ViewHeight/2;
+        this.camera.setPosition(new Vec2(this.segmentWidthPixels/2, this.segmentHeightPixels/2));
         this.player = new Player(this, this.camera);
         this.player.position.x = 100;
         this.player.position.y = 100;
@@ -77,7 +82,28 @@ export class World{
         });
     }
     update(dt: number){
-        this.player.update(dt);
+        if(!this.camera.isOob(this.camera.position)) this.player.update(dt);
+        const seg = this.getSegment(this.player.position);
+        if(seg){
+            const centerX = seg.position.x + this.segmentWidthTiles*this.tileWidth/2;
+            const centerY = seg.position.y + this.segmentHeightTiles*this.tileHeight/2;
+            this.camera.resetExtents();
+            if(seg.camWalls.has("l")) this.camera.minX = centerX;
+            if(seg.camWalls.has("r")) this.camera.maxX = centerX;
+            if(seg.camWalls.has("t")) this.camera.minY = centerY;
+            if(seg.camWalls.has("b")) this.camera.maxY = centerY;
+        }
+        this.camera.update(dt);
+    }
+    getCoords(position: Vec2){
+        return new Vec2(Math.floor(position.x / this.tileWidth), Math.floor(position.y / this.tileHeight));
+    }
+    getSegment(position: Vec2){
+        const coords = this.getCoords(position);
+        const sx = Math.floor(coords.x / this.segmentWidthTiles);
+        const sy = Math.floor(coords.y / this.segmentHeightTiles);
+        const seg = this.segments.get(sx, sy);
+        return seg;
     }
     move(collision: WorldCollision){
         const {aabb, velocity} = collision;
