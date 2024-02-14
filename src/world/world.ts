@@ -55,14 +55,17 @@ export class World{
     tileTags = new Map<number, Set<string>>();
     tileset: SpriteSheet;
     camera: Camera;
-    tileWidth = 16;
-    tileHeight = 16;
-    segmentWidthTiles = 40;
-    segmentHeightTiles = 22;
+    tileWidth: number;
+    tileHeight: number;
+    segmentWidthTiles: number;
+    segmentHeightTiles: number;
     segmentWidthPixels;
     segmentHeightPixels;
     player: Player;
-    constructor(){
+    constructor(tileWidth: number, tileHeight: number, segmentWidthTiles: number, segmentHeightTiles: number){
+        this.tileWidth = tileWidth; this.tileHeight = tileHeight; 
+        this.segmentWidthTiles = segmentWidthTiles;
+        this.segmentHeightTiles = segmentHeightTiles;
         this.segmentWidthPixels = this.segmentWidthTiles*this.tileWidth;
         this.segmentHeightPixels = this.segmentHeightTiles*this.tileHeight;
         this.tileset = new SpriteSheet(Globals.textureManager.get("tiles"), this.tileWidth, this.tileHeight);
@@ -74,7 +77,7 @@ export class World{
         this.player.position.y = 100;
     }
     draw(){
-        this.camera.draw(0,0,()=>{
+        this.camera.draw(0,this.tileHeight*2.5,()=>{
             for (const seg of this.segments.data.values()) {
                 seg?.draw();
             }

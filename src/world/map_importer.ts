@@ -1,12 +1,16 @@
 import { System } from "cleo";
 import { HashGrid2D } from "../cleo/core/data";
 import { Vec2 } from "../cleo/core/la";
-import { Convert, Ldtk } from "./ldtk";
+import { Convert } from "./ldtk";
 import { Segment, World } from "./world";
 
 export function parseLdtk(src: string): World{
     const data = Convert.toLdtk(src);
-    const world = new World();
+    const tileWidth = 16;
+    const wgw = data.worldGridWidth;
+    const wgh = data.worldGridHeight;
+    if(!wgw || !wgh) throw 'nope';
+    const world = new World(tileWidth, tileWidth, wgw/tileWidth, wgh/tileWidth);
     const ts = data.defs.tilesets[0];
     for (const tag of ts.enumTags) {
         for (const id of tag.tileIds) {

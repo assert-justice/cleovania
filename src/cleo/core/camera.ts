@@ -17,8 +17,11 @@ export class Camera{
     }
     draw(x: number, y: number, fn: ()=>void){
         Graphics.pushTransform();
+        Graphics.pushRenderTarget(this.view);
+        Graphics.clear();
         Graphics.translate(-this.position.x + this.view.width / 2, - this.position.y + this.view.height / 2);
         fn();
+        Graphics.popRenderTarget();
         Graphics.popTransform();
         this.view.draw(x, y);
     }
