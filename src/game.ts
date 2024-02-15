@@ -9,6 +9,7 @@ export class Game extends Scene{
     constructor(){
         super();
         this.world = parseLdtk(System.readFile("./maps/map.ldtk"));
+        this.world.mount();
     }
     update(dt: number): void {
         // this.player.update(dt);

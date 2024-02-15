@@ -20,9 +20,11 @@ export class Segment{
     tiles: [number,number,number][];
     camWalls: Set<string>;
     tex?: Graphics.Texture;
+    levelId: string;
 
-    constructor(world: World, coords: Vec2, tiles: [number,number,number][], camWalls: Set<string>){
-        this.world = world; this.coords = coords; this.tiles = tiles; this.camWalls = camWalls;
+    constructor(world: World, levelId: string, coords: Vec2, tiles: [number,number,number][], camWalls: Set<string>){
+        this.world = world; this.levelId = levelId;
+        this.coords = coords; this.tiles = tiles; this.camWalls = camWalls;
         this.position = new Vec2(coords.x * world.segmentWidthTiles * world.tileWidth, coords.y * world.segmentHeightTiles * world.tileHeight, )
     }
 
@@ -52,6 +54,7 @@ export class Segment{
 export class World{
     collisionLookup = new HashGrid2D(-1);
     segments = new HashGrid2D<Segment | undefined>(undefined);
+    entities = new HashGrid2D<String>("");
     tileTags = new Map<number, Set<string>>();
     tileset: SpriteSheet;
     camera: Camera;
@@ -169,5 +172,14 @@ export class World{
             collision.grounded = true;
             aabb.position.y = maxY; velocity.y = 0;
         }
+    }
+    mount(){
+        // set player position
+        const spawner = [...this.entities.data.entries()].find(([_,v])=>v === "PlayerSpawner");
+        if(spawner === undefined) throw "No player spawner found";
+        const [key] = spawner;
+        const [cx,cy] = this.entities.toCoord(key);
+        this.player.position.x = cx * this.tileWidth;
+        this.player.position.y = cy * this.tileHeight;
     }
 }
