@@ -44,7 +44,14 @@ export class Player extends Actor{
         this.acceleration.y = this.gravity;
         if(this.jumpInput.isDown()) this.acceleration.y *= this.jumpGravity;
         super.update(dt);
-        this.camera.setTargetPosition(this.position);
+        // camera controls
+        const cameraPos = this.camera.position.copy();
+        cameraPos.x = this.position.x;
+        cameraPos.y = this.position.y;
+        // if(this.grounded) cameraPos.y = this.position.y;
+        // else if(Math.abs(cameraPos.y - this.position.y) > 100) cameraPos.y = this.position.y;
+        // else if(cameraPos.y-100> this.position.y) cameraPos.y = this.position.y;
+        this.camera.setTargetPosition(cameraPos);
     }
     draw(): void {
         this.spr.draw(this.position.x, this.position.y);
