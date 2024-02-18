@@ -84,11 +84,15 @@ export class World{
             for (const seg of this.segments.data.values()) {
                 seg?.draw();
             }
+            Globals.drawPools();
             this.player.draw();
         });
     }
     update(dt: number){
-        if(!this.camera.isOob(this.camera.position)) this.player.update(dt);
+        if(!this.camera.isOob(this.camera.position)) {
+            this.player.update(dt);
+            Globals.updatePools(dt);
+        }
         const seg = this.getSegment(this.player.position);
         if(seg){
             const centerX = seg.position.x + this.segmentWidthTiles*this.tileWidth/2;
@@ -111,6 +115,13 @@ export class World{
         const seg = this.segments.get(sx, sy);
         return seg;
     }
+    isCellSolid(cx: number, cy: number){
+        return this.collisionLookup.get(cx,cy) === 0;
+    }
+    isPositionSolid(position: Vec2){
+        const coord = this.getCoords(position);
+        return this.isCellSolid(coord.x, coord.y);
+    }
     move(collision: WorldCollision){
         const {aabb, velocity} = collision;
         let minX = -Infinity;
@@ -122,7 +133,7 @@ export class World{
             let cx = Math.floor(aabb.position.x / this.tileWidth) - 1;
             for(let y = aabb.position.y; y < aabb.position.y + collision.aabb.height; y+=this.tileHeight){
                 let cy = Math.floor(y / this.tileHeight);
-                if(this.collisionLookup.get(cx,cy) === 0){
+                if(this.isCellSolid(cx, cy)){
                     minX = (cx+1)*this.tileWidth;
                 }
             }
@@ -132,7 +143,7 @@ export class World{
             let cx = Math.floor((aabb.position.x + aabb.width) / this.tileWidth) + 1;
             for(let y = aabb.position.y; y < aabb.position.y + collision.aabb.height; y+=this.tileHeight){
                 let cy = Math.floor(y / this.tileHeight);
-                if(this.collisionLookup.get(cx,cy) === 0){
+                if(this.isCellSolid(cx, cy)){
                     maxX = cx*this.tileWidth-aabb.width*1.01;
                 }
             }
@@ -149,7 +160,7 @@ export class World{
             let cy = Math.floor(aabb.position.y / this.tileHeight) - 1;
             for(let x = aabb.position.x; x < aabb.position.x + collision.aabb.height; x+=this.tileWidth){
                 let cx = Math.floor(x / this.tileWidth);
-                if(this.collisionLookup.get(cx,cy) === 0){
+                if(this.isCellSolid(cx, cy)){
                     minY = (cy+1)*this.tileHeight;
                 }
             }
@@ -159,7 +170,7 @@ export class World{
             let cy = Math.floor((aabb.position.y+aabb.height) / this.tileHeight) + 1;
             for(let x = aabb.position.x; x < aabb.position.x + collision.aabb.height; x+=this.tileWidth){
                 let cx = Math.floor(x / this.tileWidth);
-                if(this.collisionLookup.get(cx,cy) === 0){
+                if(this.isCellSolid(cx, cy)){
                     maxY = cy*this.tileHeight - aabb.height * 1.01;
                 }
             }

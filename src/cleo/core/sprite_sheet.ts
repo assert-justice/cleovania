@@ -23,5 +23,8 @@ export class SpriteSheet extends Sprite{
             sx: cx*this.tileWidth, 
             sy: cy*this.tileHeight,
         });
+        // seems silly but needed to maintain flip state
+        this.flipH = this.flipH;
+        this.flipV = this.flipV;
     }
 }
