@@ -1,10 +1,11 @@
-import { SpriteSheet } from "./sprite_sheet";
+import { AnimatedSprite } from "./animated_sprite";
+import { TileSprite } from "./tile_sprite";
 
 type WrapMode = 'none';
 type Char = [number, number, number];
 
 export class Text{
-    private sheet: SpriteSheet;
+    private sheet: TileSprite;
 
     private _text: string;
     get text(){return this._text;}
@@ -21,7 +22,7 @@ export class Text{
     set wrapMode(mode: WrapMode){this._wrapMode = mode; this.calcCharacters();}
 
     private characters: Char[];
-    constructor(spriteSheet: SpriteSheet, text: string){
+    constructor(spriteSheet: TileSprite, text: string){
         this.sheet = spriteSheet;
         this._text = text;
         this.characters = [];
@@ -33,13 +34,13 @@ export class Text{
         let maxW = 0; let maxH = 0;
         for(let i = 0; i < this._text.length; i++){
             if(this._text[i] === '\n'){
-                ox = 0; oy+=this.sheet.tileHeight;
+                ox = 0; oy+=this.sheet.sheet.frameHeight;
             }
-            if(ox + this.sheet.tileWidth > maxW) maxW = ox + this.sheet.tileWidth;
-            if(oy + this.sheet.tileHeight > maxH) maxH = oy + this.sheet.tileHeight;
+            if(ox + this.sheet.sheet.frameWidth > maxW) maxW = ox + this.sheet.sheet.frameWidth;
+            if(oy + this.sheet.sheet.frameHeight > maxH) maxH = oy + this.sheet.sheet.frameHeight;
             const code = this._text.charCodeAt(i) - 32;
             if(code >= 0 && code < 105) this.characters.push([code, ox, oy]);
-            ox += this.sheet.tileWidth;
+            ox += this.sheet.sheet.frameWidth;
         }
         this._width = maxW; this._height = maxH;
     }

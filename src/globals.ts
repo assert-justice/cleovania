@@ -38,6 +38,7 @@ export class Globals{
             .add("characters", "./sprites/tilemap-characters_packed.png")
             .add("tiles", "./sprites/terrain.png")
             .add("backgrounds", "./sprites/tilemap-backgrounds_packed.png")
+            .add("adventurer", "./sprites/adventurer-v1.5-Sheet.png");
         this.playerBulletPool = new Pool(()=>new Bullet(8));
         this.world = parseLdtk(System.readFile("./maps/map.ldtk"));
         this.world.mount();

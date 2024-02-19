@@ -1,30 +1,36 @@
 import { Graphics } from "cleo";
-import { Sprite } from "./sprite";
 
-export class SpriteSheet extends Sprite{
-    idx: number = 0;
-    private width: number;
-    private height: number;
-    tileWidth: number;
-    tileHeight: number;
-    constructor(tex: Graphics.Texture, tileWidth: number, tileHeight: number){
-        super(tex, {width: tileWidth, height: tileHeight, sw: tileWidth, sh: tileHeight});
-        this.tileWidth = tileWidth;
-        this.tileHeight = tileHeight;
-        this.width = Math.trunc(tex.width / tileWidth);
-        this.height = Math.trunc(tex.height / tileHeight);
+export class SpriteSheet{
+    tex: Graphics.Texture;
+    frameWidth: number;
+    frameHeight: number;
+    frameCount: number;
+    hCells: number;
+    vCells: number;
+    offsetX = 0;
+    offsetY = 0;
+    padLeft = 0;
+    padRight = 0;
+    padTop = 0;
+    padBottom = 0;
+    constructor(tex: Graphics.Texture, frameWidth: number, frameHeight: number){
+        this.tex = tex; this.frameWidth = frameWidth; this.frameHeight = frameHeight;
+        this.hCells = Math.floor(tex.width / frameWidth);
+        this.vCells = Math.floor(tex.height / frameHeight);
+        this.frameCount = this.hCells * this.vCells;
     }
-    setTile(idx: number){
-        this.idx = idx;
-        if(idx < 0 || idx >= this.width*this.height) throw 'Sprite index out of bounds!';
-        const cx = idx % this.width;
-        const cy = Math.trunc(idx / this.width);
-        this.setProps({
-            sx: cx*this.tileWidth, 
-            sy: cy*this.tileHeight,
-        });
-        // seems silly but needed to maintain flip state
-        this.flipH = this.flipH;
-        this.flipV = this.flipV;
+    getSpriteProps(idx: number, props?: Graphics.TextureParams){
+        if(!props) props = {};
+        const cx = idx % this.hCells;
+        const cy = Math.trunc(idx / this.hCells);
+        props = { ...props,
+            sx: cx*this.frameWidth, 
+            sy: cy*this.frameHeight,
+            width: this.frameWidth,
+            height: this.frameHeight,
+            sw: this.frameWidth,
+            sh: this.frameHeight,
+        };
+        return props;
     }
 }

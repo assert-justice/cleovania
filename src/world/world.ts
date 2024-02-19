@@ -1,11 +1,13 @@
 import { Graphics, System } from "cleo";
 import { HashGrid2D } from "../cleo/core/data";
-import { SpriteSheet } from "../cleo/core/sprite_sheet";
+// import { AnimatedSprite } from "../cleo/core/animated_sprite";
 import { Globals } from "../globals";
 import { Camera } from "../cleo/core/camera";
 import { Vec2 } from "../cleo/core/la";
 import { Player } from "../entities/player";
 import { AABB } from "../cleo/core/aabb";
+import { TileSprite } from "../cleo/core/tile_sprite";
+// import { SpriteSheet } from "../cleo/core/sprite_sheet";
 
 export interface WorldCollision{
     aabb: AABB,
@@ -56,7 +58,7 @@ export class World{
     segments = new HashGrid2D<Segment | undefined>(undefined);
     entities = new HashGrid2D<String>("");
     tileTags = new Map<number, Set<string>>();
-    tileset: SpriteSheet;
+    tileset: TileSprite;
     camera: Camera;
     tileWidth: number;
     tileHeight: number;
@@ -71,7 +73,7 @@ export class World{
         this.segmentHeightTiles = segmentHeightTiles;
         this.segmentWidthPixels = this.segmentWidthTiles*this.tileWidth;
         this.segmentHeightPixels = this.segmentHeightTiles*this.tileHeight;
-        this.tileset = new SpriteSheet(Globals.textureManager.get("tiles"), this.tileWidth, this.tileHeight);
+        this.tileset = new TileSprite(Globals.textureManager.get("tiles"), this.tileWidth, this.tileHeight);
         this.camera = new Camera(this.segmentWidthPixels, this.segmentHeightPixels);
         // this.camera.position.x = Globals.ViewWidth/2; this.camera.position.y = Globals.ViewHeight/2;
         this.camera.setPosition(new Vec2(this.segmentWidthPixels/2, this.segmentHeightPixels/2));

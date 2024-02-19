@@ -1,17 +1,17 @@
 import { Entity } from "../cleo/core/entity";
 import { Vec2 } from "../cleo/core/la";
-import { SpriteSheet } from "../cleo/core/sprite_sheet";
 import { Globals } from "../globals";
 import { World } from "../world/world";
+import { TileSprite } from "../cleo/core/tile_sprite";
 
 export class Bullet extends Entity{
-    spr: SpriteSheet;
+    spr: TileSprite;
     velocity = new Vec2();
     world: World;
     constructor(frame: number){
         super();
         const tex = Globals.textureManager.get("characters");
-        this.spr = new SpriteSheet(tex, 24, 24);
+        this.spr = new TileSprite(tex, 24, 24);
         this.spr.setTile(frame);
         this.world = Globals.world;
     }

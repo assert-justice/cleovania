@@ -1,5 +1,5 @@
 import { InputManager, VAxis2D, VButton } from "../cleo/core/input_manager";
-import { SpriteSheet } from "../cleo/core/sprite_sheet";
+import { AnimatedSprite } from "../cleo/core/animated_sprite";
 import { Globals } from "../globals";
 import { Actor } from "./actor";
 import { World } from "../world/world";
@@ -8,6 +8,7 @@ import { Pool } from "../cleo/core/pool";
 import { Bullet } from "./bullet";
 import { Vec2 } from "../cleo/core/la";
 import { System } from "cleo";
+import { TileSprite } from "../cleo/core/tile_sprite";
 
 export class Player extends Actor{
     jump = false;
@@ -16,7 +17,7 @@ export class Player extends Actor{
     jumpGravity = 0.5;
     jumpPower = 400;
     inputManager: InputManager;
-    spr: SpriteSheet;
+    spr: TileSprite;
     moveInput: VAxis2D;
     jumpInput: VButton;
     fireInput: VButton;
@@ -27,10 +28,10 @@ export class Player extends Actor{
     camera: Camera;
     bulletPool: Pool;
     constructor(world: World, camera: Camera){
-        super(world, 24, 24);
+        super(world, 50, 37);
         this.inputManager = Globals.inputManager;
         this.bulletPool = Globals.playerBulletPool;
-        this.spr = new SpriteSheet(Globals.textureManager.get("characters"), 24, 24);
+        this.spr = new TileSprite(Globals.textureManager.get("adventurer"), 50, 37);
         this.moveInput = this.inputManager.getAxis2D("move");
         this.jumpInput = this.inputManager.getButton("jump");
         this.fireInput = this.inputManager.getButton("fire");
@@ -42,8 +43,8 @@ export class Player extends Actor{
         if(this.jumpInput.isPressed()) this.jumpClock = this.jumpBuffer;
         if(this.grounded) this.coyoteClock = this.coyoteBuffer;
         const move = this.moveInput.getValue();
-        if(move.x > 0) this.spr.flipH = true;
-        else if(move.x < 0) this.spr.flipH = false;
+        if(move.x > 0) this.spr.flipH = false;
+        else if(move.x < 0) this.spr.flipH = true;
         this.velocity.x = move.x * this.speed;
         // this.velocity.y = move.y * this.speed;
         if(this.jumpClock > 0 && this.coyoteClock > 0) {

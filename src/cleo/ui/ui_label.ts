@@ -1,7 +1,8 @@
 import { Graphics, System } from "cleo";
-import { SpriteSheet } from "../core/sprite_sheet";
+import { AnimatedSprite } from "../core/animated_sprite";
 import { Text } from "../core/text";
 import { UINode } from "./ui_node";
+import { TileSprite } from "../core/tile_sprite";
 
 export class UILabel extends UINode{
     get text(){return this.textComponent.text;}
@@ -13,7 +14,7 @@ export class UILabel extends UINode{
         this.textComponent = textRenderer;
     }
     static fromTexture(parent: UINode | undefined, text: string, texture: Graphics.Texture, tileWidth: number, tileHeight: number){
-        const sheet = new SpriteSheet(texture, tileWidth, tileHeight);
+        const sheet = new TileSprite(texture, tileWidth, tileHeight);
         const textRenderer = new Text(sheet, text);
         return new UILabel(parent, textRenderer);
     }
