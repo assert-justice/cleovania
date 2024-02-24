@@ -1,5 +1,5 @@
 import { InputManager, VAxis2D, VButton } from "../cleo/core/input_manager";
-import { AnimatedSprite } from "../cleo/core/animated_sprite";
+import { AnimatedSprite, SpriteAnimation } from "../cleo/core/animated_sprite";
 import { Globals } from "../globals";
 import { Actor } from "./actor";
 import { World } from "../world/world";
@@ -8,7 +8,7 @@ import { Pool } from "../cleo/core/pool";
 import { Bullet } from "./bullet";
 import { Vec2 } from "../cleo/core/la";
 import { System } from "cleo";
-import { TileSprite } from "../cleo/core/tile_sprite";
+import { SpriteSheet } from "../cleo/core/sprite_sheet";
 
 export class Player extends Actor{
     jump = false;
@@ -17,7 +17,7 @@ export class Player extends Actor{
     jumpGravity = 0.5;
     jumpPower = 400;
     inputManager: InputManager;
-    spr: TileSprite;
+    spr: AnimatedSprite;
     moveInput: VAxis2D;
     jumpInput: VButton;
     fireInput: VButton;
@@ -27,17 +27,28 @@ export class Player extends Actor{
     coyoteClock = 0;
     camera: Camera;
     bulletPool: Pool;
+    state: "idle" | "running" | "jumping" = "idle";
     constructor(world: World, camera: Camera){
         super(world, 50, 37);
+        // this.aabb.offset = new Vec2(10, 0);
         this.inputManager = Globals.inputManager;
         this.bulletPool = Globals.playerBulletPool;
-        this.spr = new TileSprite(Globals.textureManager.get("adventurer"), 50, 37);
+        const spriteSheet = new SpriteSheet(Globals.textureManager.get("adventurer"), 50, 37);
+        this.spr = new AnimatedSprite(spriteSheet);
+        let anim = new SpriteAnimation();
+        anim.name = "idle";
+        anim.mode = "loop";
+        anim.frames = [0, 1, 2, 3];
+        this.spr.addAnimation(anim);
+        this.spr.setAnimation("idle");
+        this.spr.play();
         this.moveInput = this.inputManager.getAxis2D("move");
         this.jumpInput = this.inputManager.getButton("jump");
         this.fireInput = this.inputManager.getButton("fire");
         this.camera = camera;
     }
     update(dt: number): void {
+        this.spr.update(dt);
         if(this.jumpClock > 0) this.jumpClock -= dt;
         if(this.coyoteClock > 0) this.coyoteClock -= dt;
         if(this.jumpInput.isPressed()) this.jumpClock = this.jumpBuffer;
@@ -55,6 +66,9 @@ export class Player extends Actor{
         this.acceleration.y = this.gravity;
         if(this.jumpInput.isDown()) this.acceleration.y *= this.jumpGravity;
         super.update(dt);
+        // if(this.grounded && Math.abs(this.velocity.y) > 0.01 && this.spr.getAnimation() !== "run"){
+        //     this.spr.setAnimation("run");
+        // }
         // camera controls
         const cameraPos = this.camera.position.copy();
         cameraPos.x = this.position.x;

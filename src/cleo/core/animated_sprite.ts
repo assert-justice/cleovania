@@ -8,9 +8,6 @@ export class SpriteAnimation{
     framerate = 5;
     mode: "once" | "loop" | "bounce" = "once";
     frames: number[] = [];
-    constructor(frameCount: number = 0){
-        for(let idx = 0; idx < frameCount; idx++) this.frames.push(idx);
-    }
     getFrame(idx: number){
         if(this.frames.length === 0) return 0;
         return this.frames[mod(idx, this.frames.length)];
@@ -24,17 +21,7 @@ export class AnimatedSprite extends Sprite{
         this._frame = v;
         this.frameIdx = this.currentAnimation.getFrame(v);
         this.frameProgress = 0;
-        // const cx = this.frameIdx % this.sheet.hCells;
-        // const cy = Math.trunc(this.frameIdx / this.sheet.hCells);
-        // this.setProps({
-        //     sx: cx*this.sheet.frameWidth, 
-        //     sy: cy*this.sheet.frameHeight,
-        // });
         this.setProps(this.sheet.getSpriteProps(this.frameIdx, this.properties));
-        // seems silly but needed to maintain flip state
-        this.flipH = this.flipH;
-        this.flipV = this.flipV;
-
     }
     private _isReversed = false;
     get isReversed(){return this._isReversed;}
@@ -69,6 +56,9 @@ export class AnimatedSprite extends Sprite{
         this.currentAnimation = anim;
         this.reset();
     }
+    getAnimation(){
+        return this.currentAnimation.name;
+    }
     play(){
         this.reset();
         this._isPlaying = true;
@@ -85,8 +75,9 @@ export class AnimatedSprite extends Sprite{
     update(dt: number){
         if(!this._isPlaying) return;
         this.frameProgress += dt;
-        if(this.frameProgress < 1) return;
-        this.frameProgress -= 1;
+        const frameTime = 1 / this.currentAnimation.framerate;
+        if(this.frameProgress < frameTime) return;
+        this.frameProgress -= frameTime;
         this.frame += this.frameDirection;
         if(this.frame < 0 || this.frame >= this.currentAnimation.frames.length){
             switch (this.currentAnimation.mode) {
