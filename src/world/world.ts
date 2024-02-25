@@ -9,10 +9,25 @@ import { AABB } from "../cleo/core/aabb";
 import { TileSprite } from "../cleo/core/tile_sprite";
 // import { SpriteSheet } from "../cleo/core/sprite_sheet";
 
-export interface WorldCollision{
-    aabb: AABB,
-    velocity: Vec2,
-    grounded: boolean,
+export class WorldCollision{
+    x: number = 0;
+    y: number = 0;
+    w: number = 0;
+    h: number = 0;
+    dx: number = 0;
+    dy: number = 0;
+    // aabb: AABB;
+    // velocity: Vec2;
+    // collided: boolean = false;
+    collidedLeft: boolean = false;
+    collidedRight: boolean = false;
+    collidedTop: boolean = false;
+    collidedBottom: boolean = false;
+    // constructor(aabb: AABB, velocity: Vec2){
+    //     this.x = aabb.position.x; this.y = aabb.position.y;
+    //     this.w = aabb.width; this.h = aabb.height;
+    //     this.dx = velocity.x; this.dy = velocity.y;
+    // }
 }
 
 export class Segment{
@@ -75,7 +90,6 @@ export class World{
         this.segmentHeightPixels = this.segmentHeightTiles*this.tileHeight;
         this.tileset = new TileSprite(Globals.textureManager.get("tiles"), this.tileWidth, this.tileHeight);
         this.camera = new Camera(this.segmentWidthPixels, this.segmentHeightPixels);
-        // this.camera.position.x = Globals.ViewWidth/2; this.camera.position.y = Globals.ViewHeight/2;
         this.camera.setPosition(new Vec2(this.segmentWidthPixels/2, this.segmentHeightPixels/2));
         this.player = new Player(this, this.camera);
         this.player.position.x = 100;
@@ -124,67 +138,60 @@ export class World{
         const coord = this.getCoords(position);
         return this.isCellSolid(coord.x, coord.y);
     }
-    move(collision: WorldCollision){
-        const {aabb, velocity} = collision;
-        let minX = -Infinity;
-        let maxX = Infinity;
-        let minY = -Infinity;
-        let maxY = Infinity;
-        if(collision.velocity.x < 0){
-            // get min x position
-            let cx = Math.floor(aabb.position.x / this.tileWidth) - 1;
-            for(let y = aabb.position.y; y < aabb.position.y + collision.aabb.height; y+=this.tileHeight){
-                let cy = Math.floor(y / this.tileHeight);
-                if(this.isCellSolid(cx, cy)){
-                    minX = (cx+1)*this.tileWidth;
-                }
+    private collideX(x: number, yStart: number, height: number): boolean{
+        const yEnd = yStart + height;
+        for(let y = yStart; y <= yEnd; y+=this.tileHeight){
+            if(this.isPositionSolid(new Vec2(x, y))) return true;
+        }
+        return false;
+    }
+    private collideY(xStart: number, y: number, width: number): boolean{
+        const xEnd = xStart + width;
+        for(let x = xStart; x <= xEnd; x+=this.tileWidth){
+            if(this.isPositionSolid(new Vec2(x, y))) return true;
+        }
+        return false;
+    }
+    move(x: number, y: number, w: number, h: number, dx: number, dy: number): WorldCollision{
+        const col = new WorldCollision();
+        if(dy < 0){
+            if(this.collideY(x, y + dy, w - 5)){ // stupid bias that I hate
+                col.collidedTop = true;
+                System.println("top");
+                dy = 0;
+            }
+            else{
+                y += dy;
             }
         }
-        else if(collision.velocity.x > 0){
-            // get max x position
-            let cx = Math.floor((aabb.position.x + aabb.width) / this.tileWidth) + 1;
-            for(let y = aabb.position.y; y < aabb.position.y + collision.aabb.height; y+=this.tileHeight){
-                let cy = Math.floor(y / this.tileHeight);
-                if(this.isCellSolid(cx, cy)){
-                    maxX = cx*this.tileWidth-aabb.width*1.01;
-                }
+        else if(dy > 0){
+            if(this.collideY(x, y + h + dy, w - 5)){
+                col.collidedBottom = true;
+                dy = 0;
+            }
+            else{
+                y += dy;
             }
         }
-        aabb.position.x += velocity.x;
-        if(aabb.position.x < minX){
-            aabb.position.x = minX; velocity.x = 0;
-        }
-        if(aabb.position.x > maxX){
-            aabb.position.x = maxX; velocity.x = 0;
-        }
-        if(collision.velocity.y < 0){
-            // get min y position
-            let cy = Math.floor(aabb.position.y / this.tileHeight) - 1;
-            for(let x = aabb.position.x; x < aabb.position.x + collision.aabb.height; x+=this.tileWidth){
-                let cx = Math.floor(x / this.tileWidth);
-                if(this.isCellSolid(cx, cy)){
-                    minY = (cy+1)*this.tileHeight;
-                }
+        if(dx < 0){
+            if(this.collideX(x + dx, y, h)){
+                col.collidedLeft = true;
+                dx = 0;
+            }
+            else{
+                x += dx;
             }
         }
-        else if(collision.velocity.y > 0){
-            // get min y position
-            let cy = Math.floor((aabb.position.y+aabb.height) / this.tileHeight) + 1;
-            for(let x = aabb.position.x; x < aabb.position.x + collision.aabb.height; x+=this.tileWidth){
-                let cx = Math.floor(x / this.tileWidth);
-                if(this.isCellSolid(cx, cy)){
-                    maxY = cy*this.tileHeight - aabb.height * 1.01;
-                }
+        else if(dx > 0){
+            if(this.collideX(x + w + dy, y, h)){
+                col.collidedRight = true;
+                dx = 0;
+            }
+            else{
+                x += dx;
             }
         }
-        aabb.position.y += velocity.y;
-        if(aabb.position.y < minY){
-            aabb.position.y = minY; velocity.y = 0;
-        }
-        if(aabb.position.y > maxY){
-            collision.grounded = true;
-            aabb.position.y = maxY; velocity.y = 0;
-        }
+        return {...col, x, y, w, h, dx, dy};
     }
     mount(){
         // set player position
