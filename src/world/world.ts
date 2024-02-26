@@ -157,7 +157,6 @@ export class World{
         if(dy < 0){
             if(this.collideY(x, y + dy, w - 5)){ // stupid bias that I hate
                 col.collidedTop = true;
-                System.println("top");
                 dy = 0;
             }
             else{

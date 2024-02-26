@@ -29,6 +29,7 @@ declare module "cleo" {
         function translate(x: number, y: number): void;
         function scale(x: number, y: number): void;
         function rotate(angle: number): void;
+        function saveTexture(path: string, texture?: Texture): void;
         // function setOrthoProjection(left: number, right: number, top: number, bottom: number, near: number, far: number): void;
         // function setPerspectiveProjection(fov: number, aspect: number, near: number, far: number): void;
         interface TextureParams{
@@ -55,12 +56,12 @@ declare module "cleo" {
             // resetTarget():void;
         }
     }
+    export type WindowMode = "windowed" | "borderless" | "fullscreen";
     export class Window{
         static get width():number;
         static get height():number;
-        static setStats(name: string, width:number, height:number, mode?: string, monitor?: number)
+        static setStats(name: string, width:number, height:number, mode?: WindowMode, monitor?: number)
         static vsync: boolean;
-
     }
     export namespace Input{
         interface InputEvent{

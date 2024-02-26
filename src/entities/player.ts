@@ -40,7 +40,19 @@ export class Player extends Actor{
         anim.mode = "loop";
         anim.frames = [0, 1, 2, 3];
         this.spr.addAnimation(anim);
-        this.spr.setAnimation("idle");
+        anim = new SpriteAnimation();
+        anim.name = "run";
+        anim.mode = "loop";
+        anim.framerate = 10;
+        anim.frames = [8, 9, 10, 11, 12, 13];
+        this.spr.addAnimation(anim);
+        anim = new SpriteAnimation();
+        anim.name = "jump";
+        // anim.mode = "loop";
+        anim.framerate = 10;
+        anim.frames = [15, 16, 17, 18, 19, 20, 21, 22, 23];
+        this.spr.addAnimation(anim);
+        this.spr.setAnimation("jump");
         this.spr.play();
         this.moveInput = this.inputManager.getAxis2D("move");
         this.jumpInput = this.inputManager.getButton("jump");
@@ -62,25 +74,32 @@ export class Player extends Actor{
             this.velocity.y = -this.jumpPower;
             this.jumpClock = 0;
             this.coyoteClock = 0;
+            this.grounded = false;
+            this.spr.setAnimation("jump");
+            this.spr.play();
         }
         this.acceleration.y = this.gravity;
         if(this.jumpInput.isDown()) this.acceleration.y *= this.jumpGravity;
         super.update(dt);
-        // if(this.grounded && Math.abs(this.velocity.y) > 0.01 && this.spr.getAnimation() !== "run"){
-        //     this.spr.setAnimation("run");
-        // }
+        // handle anim states
+        if(this.grounded){
+            if(!this.spr.isPlaying()) this.spr.play();
+            if(Math.abs(this.velocity.x) > 0.01){
+                if(this.spr.getAnimation() !== "run") this.spr.setAnimation("run");
+            }
+            else{
+                if(this.spr.getAnimation() !== "idle") this.spr.setAnimation("idle");
+            }
+        }
         // camera controls
         const cameraPos = this.camera.position.copy();
         cameraPos.x = this.position.x;
         cameraPos.y = this.position.y;
-        // if(this.grounded) cameraPos.y = this.position.y;
-        // else if(Math.abs(cameraPos.y - this.position.y) > 100) cameraPos.y = this.position.y;
-        // else if(cameraPos.y-100> this.position.y) cameraPos.y = this.position.y;
         this.camera.setTargetPosition(cameraPos);
         if(this.fireInput.isPressed()){
             const bullet = this.bulletPool.getNew() as Bullet;
             bullet.position = this.position.copy();
-            bullet.velocity = new Vec2(this.spr.flipH ? 300 : -300, 0);
+            bullet.velocity = new Vec2(!this.spr.flipH ? 300 : -300, 0);
         }
     }
     draw(): void {
